@@ -32,3 +32,5 @@ F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\ZadaniePraca.Views
 F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\ZadaniePraca.dll
 F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\ZadaniePraca.pdb
 F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\ZadaniePraca.csproj.CopyComplete
+F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\Razor\Views\Product\Index.cshtml.g.cs
+F:\projects\ZadaniePraca\ZadaniePraca\obj\Debug\netcoreapp2.1\Razor\Views\Product\Get.cshtml.g.cs
