@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
 namespace ZadaniePraca.Models
 {
     public class ProductActions
     {
-        public const string FILENAME = "database.txt";
+        public const string connection_string = "Server=localhost;Database=coffeemug_task;Uid=root;Pwd=;";
+        public MySqlConnection connection = new MySqlConnection(connection_string);
 
         /// <summary>
         /// Creates product database
@@ -22,14 +25,16 @@ namespace ZadaniePraca.Models
             if (string.IsNullOrWhiteSpace(product_create_input.Name) || product_create_input.Name.Length > 100)
                 throw new ArgumentOutOfRangeException("Man, check your product name...");
 
-            List<string> serialized_product = new List<string>()
-            {
-                product_create_input.Id.ToString(),
-                product_create_input.Name,
-                product_create_input.Price.ToString()
-            };
-
-            File.AppendAllLines(FILENAME,serialized_product);
+            string sql_query = "INSERT INTO `products` (`PID`, `PGuid`, `PName`, `PPrice`) VALUES" +
+                " (NULL, @guid, @name, @price);";
+            this.connection.Open();
+            MySqlCommand command = new MySqlCommand(sql_query, this.connection);
+            command.Prepare();
+            command.Parameters.AddWithValue("@guid", product_create_input.Id.ToString());
+            command.Parameters.AddWithValue("@name", product_create_input.Name);
+            command.Parameters.AddWithValue("@price", product_create_input.Price);
+            command.ExecuteNonQuery();
+            this.connection.Close();
             return product_create_input.Id;
         }
         
@@ -41,20 +46,19 @@ namespace ZadaniePraca.Models
         {
             List<Product> product_list = new List<Product>();
 
-            if (!ValidateFile(FILENAME))
-                return null;
-
-            string[] file_content = File.ReadAllLines(FILENAME);
-
-            for (int i = 0; i < file_content.Length; i += 3)
+            string sql_query = "SELECT `PGuid`,`PName`,`PPrice` FROM `products`";
+            this.connection.Open();
+            DataTable data_from_database = new DataTable();
+            MySqlDataAdapter data_adapter = new MySqlDataAdapter(sql_query, this.connection);
+            data_adapter.Fill(data_from_database);
+            foreach (DataRow row in data_from_database.Rows)
             {
-                Guid current_product_id = Guid.Parse(file_content[i]);
-                string current_name = file_content[i + 1];
-                decimal current_price = decimal.Parse(file_content[i + 2].Replace('.', ','));
-                Product product = new Product(current_product_id, current_name, current_price);
-                product_list.Add(product);
+                Guid id_buffer = new Guid(row.ItemArray[0].ToString());
+                string name_buffer = row.ItemArray[1].ToString();
+                decimal price_buffer = decimal.Parse(row.ItemArray[2].ToString());
+                product_list.Add(new Product(id_buffer, name_buffer, price_buffer));
             }
-
+            this.connection.Close();
             return product_list;
         }
 
@@ -85,24 +89,24 @@ namespace ZadaniePraca.Models
         /// <returns>True on success, false on failure</returns>
         public bool UpdateProduct(ProductUpdateInputModel product_update_input)
         {
-            bool is_success = false;
-            List<string> product = new List<string>()
+            try
             {
-                product_update_input.Id.ToString(),
-                product_update_input.Name,
-                product_update_input.Price.ToString()
-            };
-
-            List<Product> product_list = GetAllProducts();
-            if (product_list.Any(x => x.Id.Equals(product_update_input.Id)))
-            {
-                Product product_to_update = product_list.First(x => x.Id.Equals(product_update_input.Id));
-                product_to_update.SetName(product_update_input.Name);
-                product_to_update.SetPrice(product_update_input.Price);
-                SaveAllProducts(product_list);
-                is_success = true;
+                string sql_query = "UPDATE `products` SET `PName` = @name, `PPrice` = @price " +
+                "WHERE `products`.`PGuid` = @guid;";
+                this.connection.Open();
+                MySqlCommand command = new MySqlCommand(sql_query, this.connection);
+                command.Prepare();
+                command.Parameters.AddWithValue("@guid", product_update_input.Id);
+                command.Parameters.AddWithValue("@name", product_update_input.Name);
+                command.Parameters.AddWithValue("@price", product_update_input.Price);
+                command.ExecuteNonQuery();
+                this.connection.Close();
+                return true;
             }
-            return is_success;
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -112,43 +116,15 @@ namespace ZadaniePraca.Models
         /// <returns>True on success, false on failure</returns>
         public bool DeleteProduct(Guid id)
         {
-            List<Product> product_list = GetAllProducts();
-
-            bool is_success = false;
-
-            if (product_list.Any(x => x.Id.Equals(id)))
-            {
-                Product product_to_delete = product_list.First(x => x.Id.Equals(id));
-                product_list.Remove(product_to_delete);
-                SaveAllProducts(product_list);
-                is_success = true;
-            }
-
-            return is_success;
-        }
-
-        /// <summary>
-        /// Adds serialized item to database
-        /// </summary>
-        /// <param name="product_input">Item to add to database which will be serialized</param>
-        /// <returns>True on success, false on failure</returns>
-        public bool SaveProduct(Product product_input)
-        {
-            if (product_input.Price <= 0)
-                throw new ArgumentException("Give me correct price man...");
-            if (string.IsNullOrWhiteSpace(product_input.Name) || product_input.Name.Length > 100)
-                throw new ArgumentOutOfRangeException("Man, check your product name...");
-
             try
             {
-                List<string> serialized_product = new List<string>()
-                {
-                    product_input.Id.ToString(),
-                    product_input.Name,
-                    product_input.Price.ToString()
-                };
-
-                File.AppendAllLines(FILENAME, serialized_product);
+                string sql_query = "DELETE FROM `products` WHERE `products`.`PGuid` = @guid;";
+                this.connection.Open();
+                MySqlCommand command = new MySqlCommand(sql_query, this.connection);
+                command.Prepare();
+                command.Parameters.AddWithValue("@guid", id);
+                command.ExecuteNonQuery();
+                this.connection.Close();
                 return true;
             }
             catch
@@ -156,44 +132,5 @@ namespace ZadaniePraca.Models
                 return false;
             }
         }
-
-        /// <summary>
-        /// Saves product list to database
-        /// </summary>
-        /// <param name="products_to_save">Product list to save</param>
-        /// <returns>True on success, false on failure</returns>
-        private bool SaveAllProducts(List<Product> products_to_save)
-        {
-            try
-            {
-                // Clears the file
-                File.WriteAllText(FILENAME,string.Empty);
-                products_to_save.ForEach(x => SaveProduct(x));
-                return true;
-            }
-            catch
-            {                
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Validates file with given name
-        /// </summary>
-        /// <param name="file_name">Name of the file</param>
-        /// <returns>True on success, false on failure</returns>
-        private bool ValidateFile(string file_name)
-        {
-            // check if file exists
-            if (!File.Exists(file_name))
-                return false;
-
-            // check if data in file are complete
-            if (File.ReadAllLines(file_name).Length % 3 != 0)
-                return false;
-
-            return true;
-        }
-        
     }
 }
