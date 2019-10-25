@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\projects\\ZadaniePraca\\ZadaniePraca\\ZadaniePraca.csproj": {}
+    "F:\\projects\\ZadaniePraca-coffeemug\\ZadaniePraca\\ZadaniePraca.csproj": {}
   },
   "projects": {
-    "F:\\projects\\ZadaniePraca\\ZadaniePraca\\ZadaniePraca.csproj": {
+    "F:\\projects\\ZadaniePraca-coffeemug\\ZadaniePraca\\ZadaniePraca.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\projects\\ZadaniePraca\\ZadaniePraca\\ZadaniePraca.csproj",
+        "projectUniqueName": "F:\\projects\\ZadaniePraca-coffeemug\\ZadaniePraca\\ZadaniePraca.csproj",
         "projectName": "ZadaniePraca",
-        "projectPath": "F:\\projects\\ZadaniePraca\\ZadaniePraca\\ZadaniePraca.csproj",
+        "projectPath": "F:\\projects\\ZadaniePraca-coffeemug\\ZadaniePraca\\ZadaniePraca.csproj",
         "packagesPath": "C:\\Users\\thetoster\\.nuget\\packages\\",
-        "outputPath": "F:\\projects\\ZadaniePraca\\ZadaniePraca\\obj\\",
+        "outputPath": "F:\\projects\\ZadaniePraca-coffeemug\\ZadaniePraca\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -61,6 +61,10 @@
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[2.1.10, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.18, )"
             }
           },
           "imports": [
