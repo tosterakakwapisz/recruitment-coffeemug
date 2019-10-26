@@ -40,12 +40,13 @@ namespace ZadaniePraca.Controllers
         /// Creates a product with given name and price and saves it in database
         /// </summary>
         /// <param name="name">Product name</param>
-        /// <param name="price"> Product price</param>
+        /// <param name="price">Product price</param>
         /// <returns>Returns ID of created and saved product</returns>
         [HttpPost]
-        public Guid Post(string name, decimal price)
+        public Guid Post(string name, string price)
         {
-            ProductCreateInputModel product_create_input = new ProductCreateInputModel(name, price);
+            decimal price_decimal = decimal.Parse(price.Replace('.',','));
+            ProductCreateInputModel product_create_input = new ProductCreateInputModel(name, price_decimal);
             return product_actions.CreateProduct(product_create_input);
         }
 
@@ -57,9 +58,10 @@ namespace ZadaniePraca.Controllers
         /// <param name="price">Price of product to update</param>
         /// <returns>Returns true on success, false on failure</returns>
         [HttpPut]
-        public bool Put(Guid id, string name, decimal price)
+        public bool Put(Guid id, string name, string price)
         {
-            ProductUpdateInputModel product_update_input = new ProductUpdateInputModel(id, name, price);
+            decimal price_decimal = decimal.Parse(price.Replace('.',','));
+            ProductUpdateInputModel product_update_input = new ProductUpdateInputModel(id, name, price_decimal);
             return product_actions.UpdateProduct(product_update_input);
         }
 
